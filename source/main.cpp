@@ -1,3 +1,6 @@
+#include <cstdint>
+#include <string>
+
 #include "Node.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"

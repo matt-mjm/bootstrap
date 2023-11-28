@@ -8,10 +8,14 @@ struct Printer : public Visitor {
     int32_t depth;
     Printer();
 
-    void visit(Node &) override;
-    void visit(IntegerNode &) override;
-    void visit(UnaryNode &) override;
-    void visit(BinaryNode &) override;
+    void visit(ProgramNode &);
+    void visit(IdentifierLiteral &);
+    void visit(IntegerLiteral &);
+    void visit(UnaryExpression &);
+    void visit(BinaryExpression &);
+    void visit(BlockStatement &);
+    void visit(ReturnStatement &);
+    void visit(FunctionDeclaration &);
 };
 
 };
