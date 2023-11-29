@@ -39,7 +39,7 @@ void Ast::Printer::visit(Ast::UnaryExpression &node) {
     std::cout << "Unary Operation " << (opString != OPERATION_STRINGS.end() ?
         opString->second : "<Unknown Operation>") << std::endl;
     depth += 2;
-    node.left->accept(*this);
+    node.child->accept(*this);
     depth -= 2;
 }
 
@@ -72,11 +72,32 @@ void Ast::Printer::visit(Ast::ReturnStatement &node) {
     depth -= 2;
 }
 
+void Ast::Printer::visit(Ast::Binding &node) {
+    for (int32_t i = 0; i < depth; i++) std::cout << " ";
+    std::cout << "Binding" << std::endl;
+    depth += 2;
+    node.name->accept(*this);
+    node.type->accept(*this);
+    depth -= 2;
+}
+
+void Ast::Printer::visit(Ast::BindingList &node) {
+    for (int32_t i = 0; i < depth; i++) std::cout << " ";
+    std::cout << "Binding" << std::endl;
+    depth += 2;
+    for (auto child : node.bindings) {
+        child->accept(*this);
+    }
+    depth -= 2;
+}
+
 void Ast::Printer::visit(Ast::FunctionDeclaration &node) {
     for (int32_t i = 0; i < depth; i++) std::cout << " ";
     std::cout << "Function Declaration" << std::endl;
     depth += 2;
     node.name->accept(*this);
+    node.arguments->accept(*this);
+    node.type->accept(*this);
     node.body->accept(*this);
     depth -= 2;
 }

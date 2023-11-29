@@ -4,8 +4,8 @@
 Ast::ProgramNode::ProgramNode() :
     statements{} {}
 Ast::ProgramNode::~ProgramNode() {
-    for (auto child : statements) {
-        delete child;
+    for (auto statement : statements) {
+        delete statement;
     }
 }
 void Ast::ProgramNode::accept(Ast::Visitor &visitor) {
@@ -42,10 +42,10 @@ void Ast::BinaryExpression::accept(Ast::Visitor &visitor) {
 }
 
 Ast::UnaryExpression::UnaryExpression(
-        Ast::Operation op, Ast::Expression *left) :
-    op{op}, left{left} {}
+        Ast::Operation op, Ast::Expression *child) :
+    op{op}, child{child} {}
 Ast::UnaryExpression::~UnaryExpression() {
-    delete left;
+    delete child;
 }
 void Ast::UnaryExpression::accept(Ast::Visitor &visitor) {
     visitor.visit(*this);
@@ -71,8 +71,30 @@ void Ast::ReturnStatement::accept(Ast::Visitor &visitor) {
     visitor.visit(*this);
 }
 
-Ast::FunctionDeclaration::FunctionDeclaration(Ast::IdentifierLiteral *name, Statement *body) :
-    name{name}, body{body} {}
+Ast::Binding::Binding(Ast::IdentifierLiteral *name, Ast::Expression *type) :
+    name{name}, type{type} {}
+Ast::Binding::~Binding() {
+    delete name;
+    delete type;
+}
+void Ast::Binding::accept(Ast::Visitor &visitor) {
+    visitor.visit(*this);
+}
+
+Ast::BindingList::BindingList() :
+    bindings{} {}
+Ast::BindingList::~BindingList() {
+    for (auto binding : bindings) {
+        delete binding;
+    }
+}
+void Ast::BindingList::accept(Ast::Visitor &visitor) {
+    visitor.visit(*this);
+}
+
+Ast::FunctionDeclaration::FunctionDeclaration(
+        Ast::IdentifierLiteral *name, BindingList *arguments, Expression *type, Statement *body) :
+    name{name}, arguments{arguments}, type{type}, body{body} {}
 Ast::FunctionDeclaration::~FunctionDeclaration() {
     delete name;
     delete body;

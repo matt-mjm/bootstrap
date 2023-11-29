@@ -57,9 +57,9 @@ struct IntegerLiteral : public Literal {
 
 struct UnaryExpression : public Expression {
     Operation op;
-    Expression *left;
+    Expression *child;
 
-    UnaryExpression(Operation op, Expression *left);
+    UnaryExpression(Operation, Expression *);
     ~UnaryExpression();
     void accept(Visitor &) override;
 };
@@ -69,7 +69,7 @@ struct BinaryExpression : public Expression {
     Expression *left;
     Expression *right;
 
-    BinaryExpression(Operation op, Expression *left, Expression *right);
+    BinaryExpression(Operation, Expression *, Expression *);
     ~BinaryExpression();
     void accept(Visitor &) override;
 };
@@ -90,11 +90,30 @@ struct ReturnStatement : public Statement {
     void accept(Visitor &);
 };
 
+struct Binding : public Expression {
+    IdentifierLiteral *name;
+    Expression *type;
+
+    Binding(IdentifierLiteral *, Expression *);
+    ~Binding();
+    void accept(Visitor &);
+};
+
+struct BindingList : public Expression {
+    std::vector<Binding *> bindings;
+
+    BindingList();
+    ~BindingList();
+    void accept(Visitor &);
+};
+
 struct FunctionDeclaration : public Statement {
     IdentifierLiteral *name;
+    BindingList *arguments;
+    Expression *type;
     Statement *body;
 
-    FunctionDeclaration(IdentifierLiteral *, Statement *);
+    FunctionDeclaration(IdentifierLiteral *, BindingList *, Expression *, Statement *);
     ~FunctionDeclaration();
     void accept(Visitor &);
 };

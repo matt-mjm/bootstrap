@@ -14,6 +14,8 @@ struct Visitor {
     virtual void visit(BinaryExpression &) = 0;
     virtual void visit(BlockStatement &) = 0;
     virtual void visit(ReturnStatement &) = 0;
+    virtual void visit(Binding &) = 0;
+    virtual void visit(BindingList &) = 0;
     virtual void visit(FunctionDeclaration &) = 0;
 };
 

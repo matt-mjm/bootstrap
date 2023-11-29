@@ -16,19 +16,28 @@ void yyerror(const char *);
     Ast::Statement *statement;
     Ast::Expression *expression;
     Ast::Literal *literal;
+
+    Ast::BindingList *binding_list;
+    Ast::Binding *binding;
+    Ast::BlockStatement *block;
 }
 
 %start prog
-%token FUN RETURN
-%token NUMBER IDENTIFIER
+%token COMMA COLON ARROW
 %token PLUS MINUS STAR SLASH
 %token LPAREN RPAREN LBRACE RBRACE
+%token FUN RETURN
+%token NUMBER IDENTIFIER
 
 %type <identifier> IDENTIFIER
 %type <integer> NUMBER
 %type <expression> expr0 expr1 expr2
 %type <statement> statement block return_statement
 %type <statement> global_statement function_declaration
+%type <binding> binding
+%type <binding_list> binding_list
+%type <expression> arg_type ret_type
+%type <block> statement_list
 
 %%
 
@@ -41,7 +50,30 @@ global_statement
   ;
 
 function_declaration
-  : FUN IDENTIFIER LPAREN RPAREN statement { $$ = new Ast::FunctionDeclaration($2, $5); }
+  : FUN IDENTIFIER LPAREN binding_list RPAREN ret_type statement { $$ = new Ast::FunctionDeclaration($2, $4, $6, $7); }
+  ;
+
+binding_list
+  : binding COMMA binding_list { $$ = $3; $$->bindings.insert($$->bindings.begin(), $1); }
+  | binding { $$ = new Ast::BindingList(); $$->bindings.push_back($1); }
+  | /* NOTHING */ { $$ = new Ast::BindingList(); }
+  ;
+
+binding
+  : IDENTIFIER arg_type { $$ = new Ast::Binding($1, $2); }
+  ;
+
+arg_type
+  : COLON expr0 { $$ = $2; }
+  ;
+
+ret_type
+  : ARROW expr0 { $$ = $2; }
+  ;
+
+statement_list
+  : statement statement_list { $$ = $2; $$->statements.insert($$->statements.begin(), $1); }
+  | /* NOTHING */ { $$ = new Ast::BlockStatement(); }
   ;
 
 statement
@@ -50,7 +82,7 @@ statement
   ;
 
 block
-  : LBRACE statement RBRACE { auto temp = new Ast::BlockStatement(); temp->statements.push_back($2); $$ = temp; }
+  : LBRACE statement_list RBRACE { $$ = $2; }
   ;
 
 return_statement
@@ -71,6 +103,7 @@ expr1
 
 expr2
   : MINUS expr2 { $$ = new Ast::UnaryExpression(Ast::Operation::SUBTRACT, $2); }
+  | STAR expr2 { $$ = new Ast::UnaryExpression(Ast::Operation::MULTIPLY, $2); }
   | LPAREN expr0 RPAREN { $$ = $2; }
   | IDENTIFIER { $$ = $1; }
   | NUMBER { $$ = $1; }

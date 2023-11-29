@@ -15,6 +15,8 @@ struct Printer : public Visitor {
     void visit(BinaryExpression &);
     void visit(BlockStatement &);
     void visit(ReturnStatement &);
+    void visit(Binding &);
+    void visit(BindingList &);
     void visit(FunctionDeclaration &);
 };
 
