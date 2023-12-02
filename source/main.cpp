@@ -7,7 +7,6 @@
 
 #include "Visitor.hpp"
 #include "Printer.hpp"
-#include "CodeGenerator.hpp"
 
 #include <iostream>
 
@@ -16,8 +15,8 @@ void yyerror(const char *msg) {
 }
 
 int main(int argc, char **argv) {
-    if (argc < 3) {
-        std::cout << "Usage: " << argv[0] << " <infile> <outfile>" << std::endl;
+    if (argc < 2) {
+        std::cout << "Usage: " << argv[0] << " <infile>" << std::endl;
         return 1;
     }
 
@@ -37,15 +36,10 @@ int main(int argc, char **argv) {
     yylex_destroy();
     fclose(source);
 
-    std::error_code ec;
-    llvm::raw_fd_ostream outfile(argv[2], ec);
+    Printer printer;
 
-    Ast::Printer printer;
-    Ast::CodeGenerator codeGenerator{outfile};
-
-    Ast::Node *root = yylval.node;
-    printer(*root);
-    codeGenerator(*root);
+    Node *root = yylval.node;
+    root->accept(printer);
     delete root;
 
   return 0;

@@ -1,14 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(bootstrap)
 
-find_package(FLEX REQUIRED)
-find_package(BISON REQUIRED)
-find_package(LLVM REQUIRED CONFIG)
-
-message(STATUS "Found FLEX ${FLEX_VERSION}")
-message(STATUS "Found BISON ${BISON_VERSION}")
-message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -22,15 +14,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-flex_target(LEXER "source/tokens.l"
-    "${CMAKE_BINARY_DIR}/src/flex/lexer.cpp"
-  DEFINES_FILE
-    "${CMAKE_BINARY_DIR}/src/flex/include/lexer.hpp")
-bison_target(PARSER "source/grammar.y"
-    "${CMAKE_BINARY_DIR}/src/bison/parser.cpp"
-  DEFINES_FILE
-  "${CMAKE_BINARY_DIR}/src/bison/include/parser.hpp")
-add_flex_bison_dependency(LEXER PARSER)
+find_package(FLEX REQUIRED)
+find_package(BISON REQUIRED)
+find_package(LLVM REQUIRED CONFIG)
 
 include_directories(${LLVM_INCLUDE_DIRS})
 separate_arguments(LLVM_DEFINITIONS_LIST
@@ -41,17 +27,29 @@ string(REGEX MATCH "[0-9]+"
 llvm_map_components_to_libnames(LLVM_LIBS
     "-${LLVM_MAJOR_VERSION}") # TODO fix
 
-add_library(ast STATIC
-    "source/Ast/Node.cpp"
-    "source/Ast/Visitor.cpp"
-    "source/Ast/Printer.cpp"
-    "source/Ast/CodeGenerator.cpp")
-target_include_directories(ast
+flex_target(LEXER "source/tokens.l"
+    "${CMAKE_BINARY_DIR}/src/flex/lexer.cpp"
+  DEFINES_FILE
+    "${CMAKE_BINARY_DIR}/src/flex/include/lexer.hpp")
+bison_target(PARSER "source/grammar.y"
+    "${CMAKE_BINARY_DIR}/src/bison/parser.cpp"
+  DEFINES_FILE
+  "${CMAKE_BINARY_DIR}/src/bison/include/parser.hpp")
+add_flex_bison_dependency(LEXER PARSER)
+
+add_library(node STATIC
+    "source/Node/Node.cpp")
+target_include_directories(node
   PUBLIC
-    "source/Ast")
-target_link_libraries(ast
+    "source/Node/include")
+
+add_library(printer STATIC
+    "source/Visitor/Printer/Printer.cpp")
+target_include_directories(printer
   PUBLIC
-    "${LLVM_LIBS}")
+    "source/Visitor/Printer/include")
+target_link_libraries(printer
+    node)
 
 add_library(parser STATIC
     "${FLEX_LEXER_OUTPUTS}"
@@ -61,10 +59,11 @@ target_include_directories(parser
     "${CMAKE_BINARY_DIR}/src/flex/include"
     "${CMAKE_BINARY_DIR}/src/bison/include")
 target_link_libraries(parser
-    ast)
+    node)
 
 add_executable(compiler
     "source/main.cpp")
 target_link_libraries(compiler
-    ast
+    node
+    printer
     parser)
