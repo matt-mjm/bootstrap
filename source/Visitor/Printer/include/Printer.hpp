@@ -10,4 +10,10 @@ struct Printer : public Visitor {
     void printDepth(void);
 
     void visit(GenericNode &) override;
+    void visit(ListNode &) override;
+    void visit(IdentifierLiteral &) override;
+    void visit(IntegerLiteral &) override;
+    void visit(StringLiteral &) override;
+    void visit(FunctionExpression &) override;
+    void visit(ModifiedStatement &) override;
 };

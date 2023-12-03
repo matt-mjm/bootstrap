@@ -25,6 +25,7 @@ ENUM        "enum"
 /* Literals */
 IDENTIFIER  [a-zA-Z_][a-zA-Z0-9_]*
 INTEGER     [0-9]+
+STRING      ["]([^"\\\r\n]|\\(.|\n))*["]
 /* Punctuation */
 LPAREN      "("
 RPAREN      ")"
@@ -79,8 +80,9 @@ SHR         ">>"
 {CONTINUE}  { return CONTINUE; }
 {STRUCT}    { return STRUCT; }
 {ENUM}      { return ENUM; }
-{IDENTIFIER}    { yylval.generic = new GenericNode(yytext, {}); return IDENTIFIER; }
-{INTEGER}   { yylval.generic = new GenericNode(yytext, {}); return INTEGER; }
+{IDENTIFIER}    { yylval.identifier = new IdentifierLiteral(yytext); return IDENTIFIER; }
+{INTEGER}   { yylval.integer = new IntegerLiteral(atoi(yytext)); return INTEGER; }
+{STRING}    { yylval.string = new StringLiteral(yytext); return STRING; }
 {LPAREN}    { return LPAREN; }
 {RPAREN}    { return RPAREN; }
 {LBRACKET}  { return LBRACKET; }

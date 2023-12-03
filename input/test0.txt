@@ -1,3 +1,4 @@
 fun main(argc: i32, argv: *i8) -> i32 {
+    printf("Hello %d\n", 17 - 21);
     return 40 * 10 + 2 * -10;
 }
