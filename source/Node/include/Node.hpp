@@ -61,6 +61,27 @@ struct FunctionExpression : public Node {
     void accept(Visitor &) override;
 };
 
+struct FunctionDeclaration : public Node {
+    IdentifierLiteral *label;
+    ListNode *args;
+    Node *returnType;
+    Node *body;
+
+    FunctionDeclaration(IdentifierLiteral *, ListNode *, Node *, Node *);
+    ~FunctionDeclaration();
+    void accept(Visitor &) override;
+};
+
+struct VariableDeclaration : public Node {
+    std::string mode;
+    IdentifierLiteral *label;
+    Node *type;
+
+    VariableDeclaration(std::string, IdentifierLiteral *, Node *);
+    ~VariableDeclaration();
+    void accept(Visitor &);
+};
+
 struct ModifiedStatement : public Node {
     std::string label;
     Node *child;

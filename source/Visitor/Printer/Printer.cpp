@@ -53,6 +53,26 @@ void Printer::visit(FunctionExpression &node) {
     depth -= 2;
 }
 
+void Printer::visit(FunctionDeclaration &node) {
+    printDepth();
+    std::cout << "Function Declaration" << std::endl;
+    depth += 2;
+    node.label->accept(*this);
+    node.args->accept(*this);
+    node.returnType->accept(*this);
+    node.body->accept(*this);
+    depth -= 2;
+}
+
+void Printer::visit(VariableDeclaration &node) {
+    printDepth();
+    std::cout << "Declaration " << node.mode << std::endl;
+    depth += 2;
+    node.label->accept(*this);
+    if (node.type) node.type->accept(*this);
+    depth -= 2;
+}
+
 void Printer::visit(ModifiedStatement &node) {
     printDepth();
     std::cout << "Statement " << node.label << std::endl;

@@ -63,6 +63,30 @@ void FunctionExpression::accept(Visitor &visitor) {
     visitor.visit(*this);
 }
 
+FunctionDeclaration::FunctionDeclaration(
+        IdentifierLiteral *label, ListNode *args, Node *returnType, Node *body) :
+    label{label}, args{args}, returnType{returnType}, body{body} {}
+FunctionDeclaration::~FunctionDeclaration() {
+    delete label;
+    delete args;
+    delete returnType;
+    delete body;
+}
+void FunctionDeclaration::accept(Visitor &visitor) {
+    visitor.visit(*this);
+}
+
+VariableDeclaration::VariableDeclaration(
+        std::string mode, IdentifierLiteral *label, Node *type) :
+    mode{mode}, label{label}, type{type} {}
+VariableDeclaration::~VariableDeclaration() {
+    delete label;
+    if (type) delete type;
+}
+void VariableDeclaration::accept(Visitor &visitor) {
+    visitor.visit(*this);
+}
+
 ModifiedStatement::ModifiedStatement(std::string_view label, Node *child) :
     label{label}, child{child} {}
 ModifiedStatement::~ModifiedStatement() {

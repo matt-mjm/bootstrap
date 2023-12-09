@@ -15,5 +15,7 @@ struct Printer : public Visitor {
     void visit(IntegerLiteral &) override;
     void visit(StringLiteral &) override;
     void visit(FunctionExpression &) override;
+    void visit(FunctionDeclaration &) override;
+    void visit(VariableDeclaration &) override;
     void visit(ModifiedStatement &) override;
 };

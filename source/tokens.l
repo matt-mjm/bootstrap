@@ -38,7 +38,7 @@ COLON       ":"
 COMMA       ","
 DOT         "."
 QUESTION    "?"
-ARROW       "->"
+ARROW       "=>"
 /* Statement Operators */
 ASSIGN      "="
 /* Expression Operators */

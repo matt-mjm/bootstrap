@@ -11,7 +11,6 @@ void yyerror(const char *);
     Node *node;
     ListNode *list;
 
-    GenericNode *generic;
     IdentifierLiteral *identifier;
     IntegerLiteral *integer;
     StringLiteral *string;
@@ -63,7 +62,7 @@ decl
   ;
 
 fun
-  : FUN IDENTIFIER LPAREN args RPAREN ARROW expr stmt { $$ = new GenericNode("__fun__", { $2, $4, $7, $8 }); }
+  : FUN IDENTIFIER LPAREN args RPAREN ARROW expr stmt { $$ = new FunctionDeclaration($2, $4, $7, $8); }
   ;
 
 args
@@ -73,8 +72,8 @@ args
   ;
 
 arg
-  : IDENTIFIER { $$ = new GenericNode("__binding__", { $1 }); }
-  | IDENTIFIER COLON expr { $$ = new GenericNode("__binding__", { $1, $3 }); }
+  : IDENTIFIER { $$ = new VariableDeclaration("param", $1, nullptr); }
+  | IDENTIFIER COLON expr { $$ = new VariableDeclaration("param", $1, $3); }
   ;
 
 stmts

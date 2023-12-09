@@ -8,5 +8,7 @@ struct Visitor {
     virtual void visit(IntegerLiteral &) = 0;
     virtual void visit(StringLiteral &) = 0;
     virtual void visit(FunctionExpression &) = 0;
+    virtual void visit(FunctionDeclaration &) = 0;
+    virtual void visit(VariableDeclaration &) = 0;
     virtual void visit(ModifiedStatement &) = 0;
 };
