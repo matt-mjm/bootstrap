@@ -11,11 +11,12 @@ struct Printer : public Visitor {
 
     void visit(GenericNode &) override;
     void visit(ListNode &) override;
+    void visit(ModifierNode &) override;
+    void visit(ProgramNode &) override;
     void visit(IdentifierLiteral &) override;
     void visit(IntegerLiteral &) override;
     void visit(StringLiteral &) override;
     void visit(FunctionExpression &) override;
     void visit(FunctionDeclaration &) override;
     void visit(VariableDeclaration &) override;
-    void visit(ModifiedStatement &) override;
 };

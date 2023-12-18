@@ -39,6 +39,8 @@ COMMA       ","
 DOT         "."
 QUESTION    "?"
 ARROW       "=>"
+RESOLVE     "::"
+ELLIPSIS    "..."
 /* Statement Operators */
 ASSIGN      "="
 /* Expression Operators */
@@ -82,7 +84,7 @@ SHR         ">>"
 {ENUM}      { return ENUM; }
 {IDENTIFIER}    { yylval.identifier = new IdentifierLiteral(yytext); return IDENTIFIER; }
 {INTEGER}   { yylval.integer = new IntegerLiteral(atoi(yytext)); return INTEGER; }
-{STRING}    { yylval.string = new StringLiteral(yytext); return STRING; }
+{STRING}    { auto tmp = std::string(yytext); yylval.string = new StringLiteral(tmp.substr(1, tmp.size() - 2)); return STRING; }
 {LPAREN}    { return LPAREN; }
 {RPAREN}    { return RPAREN; }
 {LBRACKET}  { return LBRACKET; }
@@ -90,11 +92,13 @@ SHR         ">>"
 {LBRACE}    { return LBRACE; }
 {RBRACE}    { return RBRACE; }
 {SEMICOLON} { return SEMICOLON; }
+{RESOLVE}   { return RESOLVE; }
 {COLON}     { return COLON; }
 {COMMA}     { return COMMA; }
 {DOT}       { return DOT; }
 {QUESTION}  { return QUESTION; }
 {ARROW}     { return ARROW; }
+{ELLIPSIS}  { return ELLIPSIS; }
 {ADD}       { return ADD; }
 {SUB}       { return SUB; }
 {MUL}       { return MUL; }

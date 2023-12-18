@@ -24,9 +24,29 @@ void Printer::visit(GenericNode &node) {
 }
 
 void Printer::visit(ListNode &node) {
+    printDepth();
+    std::cout << "List " << node.nodes.size() << std::endl;
+    depth += 2;
     for (auto child : node.nodes) {
         child->accept(*this);
     }
+    depth -= 2;
+}
+
+void Printer::visit(ProgramNode &node) {
+    printDepth();
+    std::cout << "Program" << std::endl;
+    depth += 2;
+    node.declarations->accept(*this);
+    depth -= 2;
+}
+
+void Printer::visit(ModifierNode &node) {
+    printDepth();
+    std::cout << "Modifier " << node.label << std::endl;
+    depth += 2;
+    node.child->accept(*this);
+    depth -= 2;
 }
 
 void Printer::visit(IdentifierLiteral &node) {
@@ -59,8 +79,8 @@ void Printer::visit(FunctionDeclaration &node) {
     depth += 2;
     node.label->accept(*this);
     node.args->accept(*this);
-    node.returnType->accept(*this);
-    node.body->accept(*this);
+    if (node.returnType) node.returnType->accept(*this);
+    if (node.body) node.body->accept(*this);
     depth -= 2;
 }
 
@@ -70,13 +90,5 @@ void Printer::visit(VariableDeclaration &node) {
     depth += 2;
     node.label->accept(*this);
     if (node.type) node.type->accept(*this);
-    depth -= 2;
-}
-
-void Printer::visit(ModifiedStatement &node) {
-    printDepth();
-    std::cout << "Statement " << node.label << std::endl;
-    depth += 2;
-    node.child->accept(*this);
     depth -= 2;
 }

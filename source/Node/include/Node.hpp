@@ -28,6 +28,24 @@ struct ListNode : public Node {
     void push(Node *);
 };
 
+struct ModifierNode : public Node {
+    std::string label;
+    Node *child;
+
+    ModifierNode(std::string_view, Node *);
+    ~ModifierNode();
+    void accept(Visitor &);
+};
+
+struct ProgramNode : public Node {
+    ListNode *declarations;
+
+    ProgramNode(ListNode *);
+    ~ProgramNode();
+    void accept(Visitor &);
+};
+
+
 struct IdentifierLiteral : public Node {
     std::string identifier;
 
@@ -79,14 +97,5 @@ struct VariableDeclaration : public Node {
 
     VariableDeclaration(std::string, IdentifierLiteral *, Node *);
     ~VariableDeclaration();
-    void accept(Visitor &);
-};
-
-struct ModifiedStatement : public Node {
-    std::string label;
-    Node *child;
-
-    ModifiedStatement(std::string_view, Node *);
-    ~ModifiedStatement();
     void accept(Visitor &);
 };

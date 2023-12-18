@@ -45,14 +45,6 @@ target_include_directories(node
   PUBLIC
     "source/Node/include")
 
-add_library(printer STATIC
-    "source/Visitor/Printer/Printer.cpp")
-target_include_directories(printer
-  PUBLIC
-    "source/Visitor/Printer/include")
-target_link_libraries(printer
-    node)
-
 add_library(parser STATIC
     "${FLEX_LEXER_OUTPUTS}"
     "${BISON_PARSER_OUTPUTS}")
@@ -63,9 +55,27 @@ target_include_directories(parser
 target_link_libraries(parser
     node)
 
+add_library(printer STATIC
+    "source/Visitor/Printer/Printer.cpp")
+target_include_directories(printer
+  PUBLIC
+    "source/Visitor/Printer/include")
+target_link_libraries(printer
+    node)
+
+add_library(codeGenerator STATIC
+    "source/Visitor/CodeGenerator/CodeGenerator.cpp")
+target_include_directories(codeGenerator
+  PUBLIC
+    "source/Visitor/CodeGenerator/include")
+target_link_libraries(codeGenerator
+    node
+    ${LLVM_LIBS})
+
 add_executable(compiler
     "source/main.cpp")
 target_link_libraries(compiler
     node
+    parser
     printer
-    parser)
+    codeGenerator)

@@ -26,6 +26,25 @@ void ListNode::push(Node *node) {
     nodes.push_back(node);
 }
 
+ModifierNode::ModifierNode(std::string_view label, Node *child) :
+    label{label}, child{child} {
+}
+ModifierNode::~ModifierNode() {
+    delete child;
+}
+void ModifierNode::accept(Visitor &visitor) {
+    visitor.visit(*this);
+}
+
+ProgramNode::ProgramNode(ListNode *declarations)
+    : declarations{declarations} {}
+ProgramNode::~ProgramNode() {
+    delete declarations;
+}
+void ProgramNode::accept(Visitor &visitor) {
+    visitor.visit(*this);
+}
+
 IdentifierLiteral::IdentifierLiteral(std::string_view identifier) :
     identifier{identifier} {}
 IdentifierLiteral::~IdentifierLiteral() {
@@ -44,8 +63,22 @@ void IntegerLiteral::accept(Visitor &visitor) {
     visitor.visit(*this);
 }
 
-StringLiteral::StringLiteral(std::string_view value) :
-    value{value} {}
+StringLiteral::StringLiteral(std::string_view raw) :
+    value{} {
+    value.reserve(raw.size());
+    for (size_t i = 0; i < raw.size(); i++) {
+        char ch = raw[i];
+        if (ch == '\\') {
+            char ch = raw[++i];
+            switch (ch) {
+                case 'n': value.push_back('\n'); break;
+                default: break;
+            }
+        } else {
+            value.push_back(ch);
+        }
+    }
+}
 StringLiteral::~StringLiteral() {
     // DOES NOTHING
 }
@@ -69,8 +102,8 @@ FunctionDeclaration::FunctionDeclaration(
 FunctionDeclaration::~FunctionDeclaration() {
     delete label;
     delete args;
-    delete returnType;
-    delete body;
+    if (returnType) delete returnType;
+    if (body) delete body;
 }
 void FunctionDeclaration::accept(Visitor &visitor) {
     visitor.visit(*this);
@@ -84,14 +117,5 @@ VariableDeclaration::~VariableDeclaration() {
     if (type) delete type;
 }
 void VariableDeclaration::accept(Visitor &visitor) {
-    visitor.visit(*this);
-}
-
-ModifiedStatement::ModifiedStatement(std::string_view label, Node *child) :
-    label{label}, child{child} {}
-ModifiedStatement::~ModifiedStatement() {
-    delete child;
-}
-void ModifiedStatement::accept(Visitor &visitor) {
     visitor.visit(*this);
 }

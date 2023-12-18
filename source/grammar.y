@@ -26,7 +26,7 @@ void yyerror(const char *);
 %token IDENTIFIER INTEGER STRING
 /* Punctuation */
 %token LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE
-%token SEMICOLON COLON COMMA DOT QUESTION ARROW
+%token SEMICOLON COLON COMMA DOT QUESTION ARROW RESOLVE ELLIPSIS
 /* Statement Operators */
 %token ASSIGN
 /* Expression Operators */
@@ -42,14 +42,15 @@ void yyerror(const char *);
 %type <identifier> IDENTIFIER
 %type <integer> INTEGER
 %type <string> STRING
+%type <node> decl stmt expr arg0 arg1
 %type <list> decls stmts exprs args
-%type <node> decl stmt expr arg
-%type <node> fun
+%type <node> fun returnType body
+%type <list> argumentList
 
 %%
 
 prog
-  : decls { yylval.node = $1; }
+  : decls { yylval.node = new ProgramNode($1); }
   ;
 
 decls
@@ -58,20 +59,40 @@ decls
   ;
 
 decl
-  : fun
+  : fun { $$ = $1; }
+  | EXTERN decl { $$ = new ModifierNode("__extern__", $2); }
   ;
 
 fun
-  : FUN IDENTIFIER LPAREN args RPAREN ARROW expr stmt { $$ = new FunctionDeclaration($2, $4, $7, $8); }
+  : FUN IDENTIFIER argumentList returnType body { $$ = new FunctionDeclaration($2, $3, $4, $5); }
+  ;
+
+returnType
+  : ARROW expr { $$ = $2; }
+  | /* NOTHING */ { $$ = nullptr; }
+  ;
+
+body
+  : stmt { $$ = $1; }
+  | SEMICOLON { $$ = nullptr; }
+  ;
+
+argumentList
+  : LPAREN RPAREN { $$ = new ListNode(); }
+  | LPAREN args RPAREN { $$ = $2; }
   ;
 
 args
-  : arg { $$ = new ListNode(); $$->push($1); }
-  | args COMMA arg { $$ = $1; $$->push($3); }
-  | /* NOTHING */ { $$ = new ListNode(); }
+  : arg0 { $$ = new ListNode(); $$->push($1); }
+  | args COMMA arg0 { $$ = $1; $$->push($3); }
   ;
 
-arg
+arg0
+  : arg1 { $$ = $1; }
+  | ELLIPSIS arg1 { $$ = new ModifierNode("__variable__", $2); }
+  ;
+
+arg1
   : IDENTIFIER { $$ = new VariableDeclaration("param", $1, nullptr); }
   | IDENTIFIER COLON expr { $$ = new VariableDeclaration("param", $1, $3); }
   ;
@@ -83,8 +104,8 @@ stmts
 
 stmt
   : LBRACE stmts RBRACE { $$ = $2; }
-  | RETURN expr SEMICOLON { $$ = new ModifiedStatement("__return__", $2); }
-  | expr SEMICOLON { $$ = new ModifiedStatement("__eval__", $1); }
+  | RETURN expr SEMICOLON { $$ = new ModifierNode("__return__", $2); }
+  | expr SEMICOLON { $$ = new ModifierNode("__eval__", $1); }
   ;
 
 exprs
